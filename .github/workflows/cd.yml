@@ -29,7 +29,7 @@ jobs:
 
       - name: Update version number
         if: env.RELEASE_VERSION != ''
-        run: yarn version --new-version ${{ env.RELEASE_VERSION }}
+        run: yarn version --no-git-tag-version --new-version ${{ env.RELEASE_VERSION }}
 
       - name: Pack
         if: env.RELEASE_VERSION != ''
