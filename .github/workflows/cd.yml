@@ -37,4 +37,6 @@ jobs:
 
       - name: Publish
         if: env.RELEASE_VERSION != ''
-        run: yarn publish
+        run: yarn publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
