@@ -12,6 +12,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@master
 
+      - uses: actions/setup-node@v3
+        with:
+          always-auth: true
+
       - name: Install dependencies
         run: yarn
 

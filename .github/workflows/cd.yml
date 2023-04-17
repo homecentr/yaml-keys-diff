@@ -14,6 +14,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@master
 
+      - uses: actions/setup-node@v3
+        with:
+          always-auth: true
+
       - name: "Determine release version" 
         uses: docker://ghcr.io/codfish/semantic-release-action:v1.9.0
         env:
