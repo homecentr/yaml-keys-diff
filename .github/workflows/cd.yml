@@ -1,8 +1,11 @@
 name: CI/CD on master
 on:
   push:
-    branches:
-      - master
+    # branches:
+    #   - master
+
+env:
+  RELEASE_VERSION: 0.0.2
 
 jobs:
   publish:
@@ -20,10 +23,10 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           scope: '@homecentr'
 
-      - name: "Determine release version" 
-        uses: docker://ghcr.io/codfish/semantic-release-action:v1.9.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: "Determine release version" 
+      #   uses: docker://ghcr.io/codfish/semantic-release-action:v1.9.0
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
         if: env.RELEASE_VERSION != ''

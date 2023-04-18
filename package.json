@@ -6,6 +6,7 @@
   "author": "LH <me@lholota.com>",
   "license": "MIT",
   "private": false,
+  
   "scripts": {
     "test": "jest"
   },
