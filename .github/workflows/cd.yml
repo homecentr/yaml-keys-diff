@@ -1,0 +1,48 @@
+name: CI/CD on master
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # To add version tags
+      issues: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@homecentr'
+
+      - name: "Determine release version" 
+        uses: docker://ghcr.io/codfish/semantic-release-action:v1.9.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        if: env.RELEASE_VERSION != ''
+        run: yarn
+
+      - name: Test
+        if: env.RELEASE_VERSION != ''
+        run: yarn test
+
+      - name: Update version number
+        if: env.RELEASE_VERSION != ''
+        run: yarn version --no-git-tag-version --new-version ${{ env.RELEASE_VERSION }}
+
+      - name: Pack
+        if: env.RELEASE_VERSION != ''
+        run: yarn pack
+
+      - name: Publish
+        if: env.RELEASE_VERSION != ''
+        run: yarn publish --access public --non-interactive
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
