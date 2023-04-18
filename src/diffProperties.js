@@ -21,6 +21,7 @@ const diffObjectsRecursively = (left, right, ignoreList, differences, parentPath
                 propertyPath: propPath,
                 message: `Property '${propPath}' is missing in '$RIGHT'`
             })
+            return
         }
 
         rightProps.splice(rightProps.indexOf(propName), 1)
@@ -33,10 +34,11 @@ const diffObjectsRecursively = (left, right, ignoreList, differences, parentPath
                 propertyPath: propPath,
                 message: `Values are of different types (${typeof leftValue} in '$LEFT', ${typeof rightValue} in '$RIGHT')`
             })
+            return
         }
 
         if (Array.isArray(leftValue)) {
-            return; // Arrays are not compared by design
+            return // Arrays are not compared by design
         }
 
         if (typeof leftValue === "object") {
