@@ -1,6 +1,6 @@
 {
   "name": "@homecentr/yaml-diff",
-  "version": "0.0.1",
+  "version": "1.3.0",
   "main": "index.js",
   "repository": "git@github.com:homecentr/yaml-diff.git",
   "author": "LH <me@lholota.com>",
