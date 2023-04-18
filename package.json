@@ -17,7 +17,7 @@
   },
   "release": {
     "branches": [
-      "feat/v1"
+      "master"
     ],
     "plugins": [
       "@semantic-release/commit-analyzer",
