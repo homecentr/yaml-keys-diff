@@ -32,6 +32,8 @@ jobs:
       - name: Test
         if: env.RELEASE_VERSION != ''
         run: yarn test
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_PRIVATE_KEY }}
 
       - name: Update version number
         if: env.RELEASE_VERSION != ''

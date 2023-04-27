@@ -1,0 +1,5 @@
+creation_rules:
+  - path_regex: "\\.sops\\.ya?ml$"
+    pgp: 2D1D9C803F35BBC24014C3906601E1EB2454827F # lholota
+    age: > # GitHub
+      age1zw6c356patclh7q8cq5a99cghpzmnufgtwfaa0tmcg87a038d9ms4xpytn

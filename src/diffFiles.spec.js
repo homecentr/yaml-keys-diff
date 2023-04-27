@@ -21,7 +21,7 @@ describe("File diff should", () => {
         // Act
         const differences = diffFiles("left.yml", "right.yml")
 
-        // Arrange
+        // Assert
         expect(differences).toHaveLength(0)
     })
 
@@ -38,7 +38,7 @@ describe("File diff should", () => {
         // Act
         const differences = diffFiles("left.yml", "right.yml")
 
-        // Arrange
+        // Assert
         expect(differences[0].message).toBe("File 'left.yml' does not exist")
     })
 
@@ -55,7 +55,7 @@ describe("File diff should", () => {
         // Act
         const differences = diffFiles("left.yml", "right.yml")
 
-        // Arrange
+        // Assert
         expect(differences[0].message).toBe("File 'right.yml' does not exist")
     })
 
@@ -72,7 +72,7 @@ describe("File diff should", () => {
         // Act
         const differences = diffFiles("left.yml", "right.yml")
 
-        // Arrange
+        // Assert
         expect(differences[0].message).toMatch(/^Loading yaml from 'left\.yml' has failed with.*/)
     })
 
@@ -85,11 +85,11 @@ describe("File diff should", () => {
         fs.readFileSync
             .mockReturnValueOnce("hello: universe")
             .mockReturnValueOnce("prop:\n    sub1: value\n sub2: value")
-            
+
         // Act
         const differences = diffFiles("left.yml", "right.yml")
 
-        // Arrange
+        // Assert
         expect(differences[0].message).toMatch(/^Loading yaml from 'right\.yml' has failed with.*/)
     })
 
@@ -102,11 +102,11 @@ describe("File diff should", () => {
         fs.readFileSync
             .mockReturnValueOnce("parent:\n  nested: true")
             .mockReturnValueOnce("parent:\n  nested: 123")
-            
+
         // Act
         const differences = diffFiles("left.yml", "right.yml")
 
-        // Arrange
+        // Assert
         expect(differences[0].message).toBe("Values are of different types (boolean in 'left.yml', number in 'right.yml')")
     })
 
@@ -123,11 +123,11 @@ describe("File diff should", () => {
         const ignoreList = [
             "parent.nested"
         ]
-            
+
         // Act
         const differences = diffFiles("left.yml", "right.yml", ignoreList)
 
-        // Arrange
+        // Assert
         expect(differences).toHaveLength(0)
     })
 })
