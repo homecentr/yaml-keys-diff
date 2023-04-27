@@ -9,7 +9,7 @@ describe("Properties diff should", () => {
         // Act
         const differences = diffProperties(obj1, obj2)
 
-        // Arrange
+        // Assert
         expect(differences).toHaveLength(0)
     })
 
@@ -21,7 +21,7 @@ describe("Properties diff should", () => {
         // Act
         const differences = diffProperties(obj1, obj2)
 
-        // Arrange
+        // Assert
         expect(differences).toHaveLength(0)
     })
 
@@ -33,7 +33,7 @@ describe("Properties diff should", () => {
         // Act
         const differences = diffProperties(obj1, obj2)
 
-        // Arrange
+        // Assert
         expect(differences[0].propertyPath).toBe("prop")
         expect(differences[0].message).toBe("Values are of different types (boolean in '$LEFT', string in '$RIGHT')")
     })
@@ -46,7 +46,7 @@ describe("Properties diff should", () => {
         // Act
         const differences = diffProperties(obj1, obj2)
 
-        // Arrange
+        // Assert
         expect(differences[0].propertyPath).toBe("extra")
         expect(differences[0].message).toBe("Property 'extra' is missing in '$RIGHT'")
     })
@@ -59,7 +59,7 @@ describe("Properties diff should", () => {
         // Act
         const differences = diffProperties(obj1, obj2)
 
-        // Arrange
+        // Assert
         expect(differences[0].propertyPath).toBe("extra")
         expect(differences[0].message).toBe("Property 'extra' is missing in '$LEFT'")
     })
@@ -72,7 +72,7 @@ describe("Properties diff should", () => {
         // Act
         const differences = diffProperties(obj1, obj2)
 
-        // Arrange
+        // Assert
         expect(differences[0].propertyPath).toBe("parent.extra")
         expect(differences[0].message).toBe("Property 'parent.extra' is missing in '$RIGHT'")
     })
@@ -85,7 +85,7 @@ describe("Properties diff should", () => {
         // Act
         const differences = diffProperties(obj1, obj2)
 
-        // Arrange
+        // Assert
         expect(differences[0].propertyPath).toBe("parent.extra")
         expect(differences[0].message).toBe("Property 'parent.extra' is missing in '$LEFT'")
     })
@@ -102,7 +102,7 @@ describe("Properties diff should", () => {
         // Act
         const differences = diffProperties(obj1, obj2, ignoreList)
 
-        // Arrange
+        // Assert
         expect(differences).toHaveLength(0)
     })
 
@@ -118,7 +118,7 @@ describe("Properties diff should", () => {
         // Act
         const differences = diffProperties(obj1, obj2, ignoreList)
 
-        // Arrange
+        // Assert
         expect(differences).toHaveLength(0)
     })
 
@@ -126,7 +126,7 @@ describe("Properties diff should", () => {
         // Arrange
         const right = { prop: true, parent: { extra: "value" } }
 
-        // Act
+        // Act & Assert
         expect(() => diffProperties(undefined, right)).toThrow("Cannot compare against undefined/null value.")
     })
 
@@ -134,7 +134,7 @@ describe("Properties diff should", () => {
         // Arrange
         const left = { prop: true, parent: { extra: "value" } }
 
-        // Act
+        // Act & Assert
         expect(() => diffProperties(left, undefined)).toThrow("Cannot compare against undefined/null value.")
     })
 })

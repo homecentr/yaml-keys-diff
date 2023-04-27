@@ -1,45 +1,108 @@
 const diffFiles = require("./diffFiles")
+const diffSopsFiles = require("./diffSopsFiles")
 
 const glob = require("glob")
+const {
+    minimatch
+} = require("minimatch")
 
-module.exports = (leftDir, rightDir, fileNameGlob = "**/*", ignoreListFunc = undefined) => {
-    const differences = []
+const defaultOptions = {
+    fileNameGlob: "**/*",
+    ignoreListFunc: undefined,
+    sopsFilesGlob: undefined
+}
 
-    const leftDirFiles = glob.globSync(fileNameGlob, {
-        cwd: leftDir
-    })
-    const rightDirFiles = glob.globSync(fileNameGlob, {
-        cwd: rightDir
-    })
+module.exports = (leftDir, rightDir, options = defaultOptions) => {
+    const context = new Context(leftDir, rightDir, options)
 
-    leftDirFiles.forEach(fileName => {
+    context.leftDirFiles.forEach(fileName => {
         const leftFilePath = `${leftDir}/${fileName}`
         const rightFilePath = `${rightDir}/${fileName}`
 
-        let fileIgnoreList = []
-
-        if (ignoreListFunc) {
-            const ignoreResult = ignoreListFunc(fileName)
-
-            if (typeof ignoreResult == "boolean" && ignoreResult) {
-                return // Whole file is ignored
-            }
-
-            fileIgnoreList = ignoreResult
+        if (context.isFullyIgnored(fileName)) {
+            context.removeRightDirFileIfExists(fileName)
+            return // Whole file is ignored
         }
 
-        rightDirFiles.splice(rightDirFiles.indexOf(fileName), 1)
+        const ignore = context.getIgnoreForFile(fileName)
 
-        diffFiles(leftFilePath, rightFilePath, fileIgnoreList, differences)
+        context.removeRightDirFile(fileName)
+
+        const fileDifferences = context.isSops(fileName)
+            ? diffSopsFiles(leftFilePath, rightFilePath, ignore)
+            : diffFiles(leftFilePath, rightFilePath, ignore)
+
+        context.appendDifferences(fileDifferences)
     })
 
-    rightDirFiles.forEach(fileName => {
+    // Files which only exist on the right side
+    context.rightDirFiles.forEach(fileName => {
         const leftFilePath = `${leftDir}/${fileName}`
         const rightFilePath = `${rightDir}/${fileName}`
 
-        // Diff files is used to avoid duplicating handling non existing files on one side
-        diffFiles(leftFilePath, rightFilePath, [], differences)
+        if (context.isFullyIgnored(fileName)) {
+            return // Whole file is ignored
+        }
+
+        // Diff files is used just to avoid duplicating handling non existing files on one side
+        context.appendDifferences(diffFiles(leftFilePath, rightFilePath))
     })
 
-    return differences
+    return context.differences
+}
+
+class Context {
+    constructor(leftDir, rightDir, options) {
+        this.options = options
+        this.differences = []
+        
+        this.leftDirFiles = this.globFiles(leftDir)
+        this.rightDirFiles = this.globFiles(rightDir)
+    }
+
+    getIgnoreForFile(fileName) {
+        if (this.options && this.options.ignoreListFunc) {
+            return this.options.ignoreListFunc(fileName)
+        }
+
+        return []
+    }
+
+    isFullyIgnored(fileName) {
+        const ignore = this.getIgnoreForFile(fileName)
+
+        return typeof ignore === "boolean" && ignore
+    }
+
+    removeRightDirFile(fileName) {
+        const index = this.rightDirFiles.indexOf(fileName)
+
+        this.rightDirFiles.splice(index, 1)
+    }
+
+    removeRightDirFileIfExists(fileName) {
+        const index = this.rightDirFiles.indexOf(fileName)
+
+        if(index > -1) {
+            this.rightDirFiles.splice(index, 1)
+        }
+    }
+
+    globFiles(dirPath) {
+        return glob.globSync(this.options.fileNameGlob, {
+            cwd: dirPath
+        })
+    }
+
+    isSops(fileName) {
+        if(this.options && this.options.sopsFilesGlob) {
+            return minimatch(fileName, this.options.sopsFilesGlob)
+        }
+
+        return false
+    }
+
+    appendDifferences(toAppend) {
+        this.differences.push(...toAppend)
+    }
 }
