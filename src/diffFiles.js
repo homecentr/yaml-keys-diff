@@ -27,7 +27,9 @@ const loadYamlFile = (path, differences) => {
     }
 }
 
-module.exports = (leftFilePath, rightFilePath, ignoreList, differences = []) => {
+module.exports = (leftFilePath, rightFilePath, ignoreList = []) => {
+    const differences = []
+
     const left = loadYamlFile(leftFilePath, differences)   
     const right = loadYamlFile(rightFilePath, differences)
 

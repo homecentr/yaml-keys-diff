@@ -27,7 +27,9 @@ const loadSopsFile = (path, differences) => {
   }
 }
 
-module.exports = (leftFilePath, rightFilePath, ignoreList, differences = []) => {
+module.exports = (leftFilePath, rightFilePath, ignoreList) => {
+  const differences = []
+  
   const left = loadSopsFile(leftFilePath, differences)
   const right = loadSopsFile(rightFilePath, differences)
 

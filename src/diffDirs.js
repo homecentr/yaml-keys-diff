@@ -12,6 +12,45 @@ const defaultOptions = {
     sopsFilesGlob: undefined
 }
 
+module.exports = (leftDir, rightDir, options = defaultOptions) => {
+    const context = new Context(leftDir, rightDir, options)
+
+    context.leftDirFiles.forEach(fileName => {
+        const leftFilePath = `${leftDir}/${fileName}`
+        const rightFilePath = `${rightDir}/${fileName}`
+
+        if (context.isFullyIgnored(fileName)) {
+            context.removeRightDirFileIfExists(fileName)
+            return // Whole file is ignored
+        }
+
+        const ignore = context.getIgnoreForFile(fileName)
+
+        context.removeRightDirFile(fileName)
+
+        const fileDifferences = context.isSops(fileName)
+            ? diffSopsFiles(leftFilePath, rightFilePath, ignore)
+            : diffFiles(leftFilePath, rightFilePath, ignore)
+
+        context.appendDifferences(fileDifferences)
+    })
+
+    // Files which only exist on the right side
+    context.rightDirFiles.forEach(fileName => {
+        const leftFilePath = `${leftDir}/${fileName}`
+        const rightFilePath = `${rightDir}/${fileName}`
+
+        if (context.isFullyIgnored(fileName)) {
+            return // Whole file is ignored
+        }
+
+        // Diff files is used just to avoid duplicating handling non existing files on one side
+        context.appendDifferences(diffFiles(leftFilePath, rightFilePath))
+    })
+
+    return context.differences
+}
+
 class Context {
     constructor(leftDir, rightDir, options) {
         this.options = options
@@ -21,12 +60,18 @@ class Context {
         this.rightDirFiles = this.globFiles(rightDir)
     }
 
-    getIgnoreForFile(relativeFilePath) {
+    getIgnoreForFile(fileName) {
         if (this.options && this.options.ignoreListFunc) {
-            return this.options.ignoreListFunc(relativeFilePath)
+            return this.options.ignoreListFunc(fileName)
         }
 
         return []
+    }
+
+    isFullyIgnored(fileName) {
+        const ignore = this.getIgnoreForFile(fileName)
+
+        return typeof ignore === "boolean" && ignore
     }
 
     removeRightDirFile(fileName) {
@@ -56,46 +101,8 @@ class Context {
 
         return false
     }
-}
 
-module.exports = (leftDir, rightDir, options = defaultOptions) => {
-    const context = new Context(leftDir, rightDir, options)
-
-    context.leftDirFiles.forEach(fileName => {
-        const leftFilePath = `${leftDir}/${fileName}`
-        const rightFilePath = `${rightDir}/${fileName}`
-
-        const ignore = context.getIgnoreForFile(fileName)
-
-        if (typeof ignore == "boolean" && ignore) {
-            context.removeRightDirFileIfExists(fileName)
-            return // Whole file is ignored
-        }
-
-        context.removeRightDirFile(fileName)
-
-        if(context.isSops(fileName)) {
-            diffSopsFiles(leftFilePath, rightFilePath, ignore, context.differences)
-        }
-        else {
-            diffFiles(leftFilePath, rightFilePath, ignore, context.differences)
-        }
-    })
-
-    // Files which only exist on the right side
-    context.rightDirFiles.forEach(fileName => {
-        const leftFilePath = `${leftDir}/${fileName}`
-        const rightFilePath = `${rightDir}/${fileName}`
-
-        const ignore = context.getIgnoreForFile(fileName)
-
-        if (typeof ignore == "boolean" && ignore) {
-            return // Whole file is ignored
-        }
-
-        // Diff files is used just to avoid duplicating handling non existing files on one side
-        diffFiles(leftFilePath, rightFilePath, [], context.differences)
-    })
-
-    return context.differences
+    appendDifferences(toAppend) {
+        this.differences.push(...toAppend)
+    }
 }
