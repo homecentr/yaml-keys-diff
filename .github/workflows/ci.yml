@@ -21,5 +21,3 @@ jobs:
 
       - name: Test
         run: yarn test
-        env:
-          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_PRIVATE_KEY }}
